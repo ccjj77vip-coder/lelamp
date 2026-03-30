@@ -91,6 +91,41 @@ cd ~/run && bash deploy.sh
 
 ---
 
+## 方法四：离线镜像导入（最快，国内推荐）
+
+适用于：国内网络环境，从网盘/U盘获取预编译镜像文件。
+
+**维护者导出镜像（在已部署的机器上执行一次）：**
+
+```bash
+sudo docker save lelamp:latest | gzip > lelamp-image.tar.gz
+# 文件约 313MB，上传到百度网盘/阿里云盘/U盘
+```
+
+**新机器部署：**
+
+```bash
+# 1. 获取代码
+git clone https://github.com/ccjj77vip-coder/lelamp.git ~/run
+
+# 2. 创建密钥文件（同方法一）
+
+# 3. 运行部署脚本安装 Docker 和配置硬件
+cd ~/run && bash deploy.sh
+#    首次会提示重启（开启 SPI），重启后再跑一次
+#    到 "正在构建 Docker 镜像" 时按 Ctrl+C 中止
+
+# 4. 导入镜像（从网盘下载或 U 盘拷贝的文件）
+sudo docker load < lelamp-image.tar.gz
+
+# 5. 启动
+cd ~/run && sudo docker compose -f docker-compose.yml up -d
+```
+
+> 导入镜像只需几秒钟，完全不需要联网下载或编译。
+
+---
+
 ## 部署后：首次校准
 
 部署完成后，浏览器打开 `http://树莓派IP:5000`，进行舵机校准：

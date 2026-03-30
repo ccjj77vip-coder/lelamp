@@ -170,10 +170,17 @@ fi
 
 # ---- 10. 构建 Docker 镜像 ----
 echo ""
-echo -e "${YELLOW}[构建] 正在构建 Docker 镜像 (首次约需10-20分钟)...${NC}"
 cd "$PROJECT_DIR"
-# 显式指定 compose 文件，避免 override.yml 被自动加载 (override 仅用于开发)
-sudo docker compose -f docker-compose.yml build
+IMAGE_TAR="$PROJECT_DIR/lelamp-image.tar.gz"
+if [ -f "$IMAGE_TAR" ]; then
+    echo -e "${YELLOW}[镜像] 检测到离线镜像文件，直接导入...${NC}"
+    sudo docker load < "$IMAGE_TAR"
+    echo -e "${GREEN}[OK] 镜像导入完成${NC}"
+else
+    echo -e "${YELLOW}[构建] 未找到离线镜像，开始构建 (首次约需10-20分钟)...${NC}"
+    # 显式指定 compose 文件，避免 override.yml 被自动加载 (override 仅用于开发)
+    sudo docker compose -f docker-compose.yml build
+fi
 
 # ---- 11. 启动服务 ----
 echo ""

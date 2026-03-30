@@ -126,6 +126,33 @@ cd ~/run && sudo docker compose -f docker-compose.yml up -d
 
 ---
 
+## 方法五：烧卡预装（批量部署最佳）
+
+适用于：批量生产或重装系统，把一切预装进 SD 卡，开机即用。
+
+**制作步骤（在电脑上操作）：**
+
+1. 用 Raspberry Pi Imager 烧录系统到 SD 卡
+2. 烧录完成后，SD 卡会挂载出 `bootfs` 和 `rootfs` 两个分区
+3. 在 `rootfs` 分区的用户目录下放入项目文件：
+
+```
+rootfs/home/用户名/run/           ← 整个项目代码（git clone 或直接拷贝）
+rootfs/home/用户名/run/.env       ← 密钥文件
+rootfs/home/用户名/run/lelamp-image.tar.gz  ← 离线镜像（313MB）
+```
+
+4. SD 卡插入树莓派，开机后只需：
+
+```bash
+cd ~/run && bash deploy.sh
+```
+
+脚本会自动检测到 `lelamp-image.tar.gz`，直接导入镜像（几秒钟），跳过漫长的构建过程。
+首次运行会安装 Docker + 配置硬件，可能需要重启一次，重启后再跑一次即可。
+
+---
+
 ## 部署后：首次校准
 
 部署完成后，浏览器打开 `http://树莓派IP:5000`，进行舵机校准：

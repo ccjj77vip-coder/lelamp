@@ -1,3 +1,6 @@
+# Docker 镜像文件
+lelamp-image.tar.gz
+
 # 密钥
 .env
 

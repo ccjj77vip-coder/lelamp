@@ -9,31 +9,30 @@ FROM python:3.13-slim-bookworm
 LABEL maintainer="LeLamp Team"
 LABEL description="LeLamp embodied AI desk lamp — Raspberry Pi Docker image"
 
-# ---- 1. 系统级依赖 ----
-# OpenCV 运行时库 + 音频工具 + 串口 + GPIO
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        # OpenCV 运行时依赖
+# ---- 1. 系统级依赖 (使用清华 apt 镜像加速) ----
+RUN sed -i 's|deb.debian.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
         libglib2.0-0 \
         libsm6 \
         libxext6 \
         libxrender1 \
-        # 音频: mpg123 播放 TTS, alsa-utils 录音/调音量
         mpg123 \
         alsa-utils \
-        # PyAudio 编译依赖
         portaudio19-dev \
-        # RPi.GPIO / NeoPixel 编译依赖
         gcc \
         python3-dev \
         libgpiod2 \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- 2. Python 依赖 ----
+# ---- 2. Python 依赖 (使用清华 pip 镜像 + piwheels 预编译) ----
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+        -i https://pypi.tuna.tsinghua.edu.cn/simple \
+        --extra-index-url https://www.piwheels.org/simple \
+        -r requirements.txt
 
 # ---- 3. 拷贝项目代码 ----
 COPY . .

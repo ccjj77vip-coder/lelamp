@@ -450,13 +450,20 @@ class VoiceSystem:
             player.stdin.write(audio_data)
             player.stdin.close()
             player.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            print("  [播放] mpg123 超时，强制终止")
+            player.kill()
+            player.wait()
         except Exception as e:
             print(f"  [播放] mpg123 播放失败: {e}")
             try:
                 with open("/tmp/lelamp_reply.mp3", "wb") as f:
                     f.write(audio_data)
-                os.system(f"mpg123 -a {self.speaker_hw} -q /tmp/lelamp_reply.mp3 > /dev/null 2>&1")
-            except:
+                subprocess.run(
+                    ['mpg123', '-a', self.speaker_hw, '-q', '/tmp/lelamp_reply.mp3'],
+                    timeout=30, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                )
+            except Exception:
                 pass
 
     def _tts_alibaba_fallback(self, text: str):

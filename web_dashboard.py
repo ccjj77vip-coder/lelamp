@@ -17,17 +17,15 @@ import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
+from config import read_calibration, write_calibration
+
 _brain_context = None
 
 def load_calibration():
-    if os.path.exists(CALIBRATION_FILE):
-        try:
-            with open(CALIBRATION_FILE, 'r') as f: return json.load(f)
-        except: pass
-    return {"HOME_OFFSET": {}, "CUSTOM_POSES": {}}
+    return read_calibration()
 
 def save_calibration(data):
-    with open(CALIBRATION_FILE, 'w') as f: json.dump(data, f, indent=4)
+    write_calibration(data)
 
 # 纯净版 HTML 前端（已清洗全部乱码）
 HTML_TEMPLATE = """

@@ -1,8 +1,27 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import json
+import threading
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CALIBRATION_PATH = os.path.join(BASE_DIR, 'calibration.json')
+_calib_lock = threading.Lock()
+
+def read_calibration():
+    """线程安全地读取 calibration.json"""
+    with _calib_lock:
+        try:
+            with open(CALIBRATION_PATH, 'r') as f:
+                return json.load(f)
+        except Exception:
+            return {"HOME_OFFSET": {}, "CUSTOM_POSES": {}, "CUSTOM_DANCES": {}}
+
+def write_calibration(data):
+    """线程安全地写入 calibration.json"""
+    with _calib_lock:
+        with open(CALIBRATION_PATH, 'w') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
 def auto_detect_serial_port():
     try:

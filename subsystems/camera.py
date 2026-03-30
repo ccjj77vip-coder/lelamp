@@ -5,12 +5,15 @@ import os
 import threading
 
 class CameraSystem:
+    # 最多保留的照片数量，超出自动删除最旧的
+    MAX_PHOTOS = 200
+
     def __init__(self):
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.photo_dir = os.path.join(base_dir, "photos")
         if not os.path.exists(self.photo_dir):
             os.makedirs(self.photo_dir)
-        
+
         self.cap = None
         self._lock = threading.Lock()  # 线程锁：防止网页流和拍照同时抢夺摄像头
 
@@ -40,6 +43,7 @@ class CameraSystem:
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
                 filename = os.path.join(self.photo_dir, f"photo_{timestamp}.jpg")
                 cv2.imwrite(filename, frame)
+                self._cleanup_old_photos()
                 return True, filename
             else:
                 return False, "读取画面失败"
@@ -58,6 +62,18 @@ class CameraSystem:
                 ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 75])
                 return buffer.tobytes() if ret else None
             return None
+
+    def _cleanup_old_photos(self):
+        """超过 MAX_PHOTOS 时删除最旧的照片"""
+        try:
+            photos = sorted(
+                [f for f in os.listdir(self.photo_dir) if f.endswith('.jpg')],
+                key=lambda f: os.path.getmtime(os.path.join(self.photo_dir, f))
+            )
+            while len(photos) > self.MAX_PHOTOS:
+                os.remove(os.path.join(self.photo_dir, photos.pop(0)))
+        except Exception:
+            pass
 
 _camera_instance = None
 def get_camera_system():

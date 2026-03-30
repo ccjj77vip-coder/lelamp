@@ -151,6 +151,9 @@ cd ~/run && bash deploy.sh
 脚本会自动检测到 `lelamp-image.tar.gz`，直接导入镜像（几秒钟），跳过漫长的构建过程。
 首次运行会安装 Docker + 配置硬件，可能需要重启一次，重启后再跑一次即可。
 
+5. 启动
+cd ~/run && sudo docker compose -f docker-compose.yml up -d
+
 ---
 
 ## 部署后：首次校准

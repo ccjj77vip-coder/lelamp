@@ -234,6 +234,7 @@ class LeLampBrain:
 
                 speak_thread.join()
                 self.motion.go_home(duration=1.0)
+                time.sleep(1.0)  # 等舵机归位完成，避免机械噪音干扰下轮 ASR
 
         except Exception as e:
             print(f"[语音交互异常] {e}")
@@ -243,8 +244,11 @@ class LeLampBrain:
             self._voice_busy = False
             self._voice_stop.clear()
             self._status = "idle"
-            self.led.set_effect("warm_lamp")
-            self.motion.go_home(duration=1.0)
+            try:
+                self.led.set_effect("warm_lamp")
+                self.motion.go_home(duration=1.0)
+            except Exception:
+                pass
 
     def run(self):
         self.running = True
@@ -359,12 +363,8 @@ if __name__ == '__main__':
         print("="*50 + "\n")
 
         # 将检测到的硬件端口写入 calibration.json
-        calib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calibration.json')
-        try:
-            with open(calib_path, 'r') as f:
-                calib_data = json.load(f)
-        except:
-            calib_data = {}
+        from config import read_calibration, write_calibration
+        calib_data = read_calibration()
 
         hw_info = {}
         if 'mic' in results and results['mic'][0] == 'OK':
@@ -373,8 +373,7 @@ if __name__ == '__main__':
             hw_info['speaker'] = results['speaker'][1]
         if hw_info:
             calib_data['HARDWARE'] = hw_info
-            with open(calib_path, 'w') as f:
-                json.dump(calib_data, f, indent=4)
+            write_calibration(calib_data)
             print(f"  [自检] 硬件端口已写入 calibration.json")
 
         return results
@@ -382,16 +381,11 @@ if __name__ == '__main__':
     hw = hardware_selftest()
 
     # ============ 首次部署检测 ============
-    calib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calibration.json')
+    from config import read_calibration
+    data = read_calibration()
     needs_calibration = True
-    if os.path.exists(calib_path):
-        try:
-            with open(calib_path, 'r') as f:
-                data = json.load(f)
-            if data.get("HOME_OFFSET") and len(data["HOME_OFFSET"]) >= 5:
-                needs_calibration = False
-        except:
-            pass
+    if data.get("HOME_OFFSET") and len(data["HOME_OFFSET"]) >= 5:
+        needs_calibration = False
 
     if needs_calibration:
         print("  [首次部署] 检测到未校准的新机器")

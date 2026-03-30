@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Runtime artifacts (容器内生成, 不打包进镜像)
+photos/*.jpg
+debug_snapshot.jpg
+*.mp3
+*.wav
+
+# Claude Code
+.claude/
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+
+# ============================================================
+#  以下为 main.py / showcase_master.py 无关的文件, 全部排除
+# ============================================================
+
+# tools/ 整个目录 (诊断/调试/烧录工具, 运行时不需要)
+tools/
+
+# utils/ 空目录
+utils/
+
+# 一次性修复脚本
+fix_*.py
+patch_voice.py
+generate_fallback.py
+
+# 测试脚本
+test_*.py
+
+# 中文命名的独立舞蹈脚本
+波浪.py
+赛博.py
+闪避.py
+
+# 自定义舞蹈 (非核心)
+custom_dance_391.py
+
+# 独立功能脚本 (不被 main/showcase 引用)
+calibrate_wizard.py
+live_monitor.py
+smart_boot.py
+wifi_setup.py
+radar.py
+
+# systemd 服务文件 (Docker 不用)
+*.service
+
+# start.py 的依赖检查/模型下载在 Docker 里不需要, 直接跑 main.py
+start.py
+
+# 杂项
+sts3215_bytecode.txt

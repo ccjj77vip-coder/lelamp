@@ -1,0 +1,40 @@
+# ============================================================
+#  LeLamp Docker Compose — 一键拉起
+#  用法:  docker compose up -d
+#         docker compose logs -f
+# ============================================================
+
+services:
+  lelamp:
+    build: .
+    image: lelamp:latest
+    container_name: lelamp
+
+    # --privileged: 允许访问所有硬件 (GPIO, 串口, 摄像头, 音频)
+    # 树莓派机器人必须开特权模式, 否则无法操控舵机和 LED
+    privileged: true
+
+    # 网络直通宿主机, 方便 mDNS / Wi-Fi 管理 / 局域网发现
+    network_mode: host
+
+    # privileged 模式已授予全部设备访问权限, 无需显式 devices 映射
+    # 需要的设备: /dev/ttyUSB0 (舵机), /dev/video0 (摄像头),
+    #   /dev/snd (音频), /dev/gpiomem, /dev/mem, /dev/spidev0.x (LED)
+
+    volumes:
+      # 照片持久化: 容器内拍的照片保存到宿主机, 重建容器不丢失
+      - ./photos:/app/photos
+      # 校准数据持久化
+      - ./calibration.json:/app/calibration.json
+
+    environment:
+      - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
+      - VOLC_APP_ID=${VOLC_APP_ID:-}
+      - VOLC_ACCESS_TOKEN=${VOLC_ACCESS_TOKEN:-}
+      - VOLC_AK_ID=${VOLC_AK_ID:-}
+      - VOLC_AK_SECRET=${VOLC_AK_SECRET:-}
+      - ALI_AK_ID=${ALI_AK_ID:-}
+      - ALI_AK_SECRET=${ALI_AK_SECRET:-}
+      - ALI_NLS_APP_KEY=${ALI_NLS_APP_KEY:-}
+
+    restart: unless-stopped

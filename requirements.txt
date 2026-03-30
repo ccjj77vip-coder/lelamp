@@ -1,0 +1,22 @@
+# === Core Dependencies ===
+flask>=3.0
+zhipuai>=2.0
+sniffio
+pyserial>=3.5
+opencv-python-headless>=4.9
+numpy>=1.26
+python-dotenv>=1.0
+requests>=2.31
+
+# === Voice: Volcengine (火山引擎 TTS/ASR, primary) ===
+# Uses HTTP REST API directly via requests, no extra SDK needed
+
+# === Voice: Alibaba Cloud NLS (ASR/TTS, fallback) ===
+alibabacloud-nls-python-sdk>=1.0
+aliyun-python-sdk-core>=2.15
+
+# === LED: Adafruit NeoPixel (GPIO) ===
+rpi-ws281x>=5.0
+RPi.GPIO
+adafruit-blinka>=8.0
+adafruit-circuitpython-neopixel>=6.3

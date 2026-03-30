@@ -1,0 +1,21 @@
+# 密钥
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 运行时数据
+photos/
+build.log
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/

@@ -1,0 +1,12 @@
+{
+    "HOME_OFFSET": {},
+    "CUSTOM_POSES": {},
+    "CUSTOM_DANCES": {},
+    "PERSONA": {
+        "active": "zhuge"
+    },
+    "HARDWARE": {
+        "mic": "plughw:4,0",
+        "speaker": "plughw:2,0"
+    }
+}

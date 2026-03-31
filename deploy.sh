@@ -31,6 +31,21 @@ while sudo fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-f
     echo -e "  ${YELLOW}其他进程正在使用 apt，等待 5 秒...${NC}"
     sleep 5
 done
+
+# 配置 apt 国内镜像源（加速系统包下载）
+if ! grep -q "mirrors.tuna.tsinghua.edu.cn" /etc/apt/sources.list.d/debian.sources 2>/dev/null \
+   && ! grep -q "mirrors.tuna.tsinghua.edu.cn" /etc/apt/sources.list 2>/dev/null; then
+    echo -e "${YELLOW}[系统] 配置 apt 清华镜像源...${NC}"
+    if [ -f /etc/apt/sources.list.d/debian.sources ]; then
+        sudo sed -i 's|deb.debian.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apt/sources.list.d/debian.sources
+    fi
+    if [ -f /etc/apt/sources.list.d/raspi.list ]; then
+        sudo sed -i 's|archive.raspberrypi.org|mirrors.tuna.tsinghua.edu.cn/raspberrypi|g' /etc/apt/sources.list.d/raspi.list
+        sudo sed -i 's|archive.raspberrypi.com|mirrors.tuna.tsinghua.edu.cn/raspberrypi|g' /etc/apt/sources.list.d/raspi.list
+    fi
+    echo -e "${GREEN}[OK] apt 镜像源已切换到清华${NC}"
+fi
+
 echo -e "${YELLOW}[系统] 检查基础依赖...${NC}"
 sudo apt-get update -qq
 sudo apt-get install -y -qq curl git python3 > /dev/null 2>&1

@@ -178,34 +178,59 @@ cd ~/run && sudo docker compose -f docker-compose.yml up -d
 | 查看日志 | `sudo docker compose -f docker-compose.yml logs -f` |
 | 重启服务 | `sudo docker compose -f docker-compose.yml restart` |
 | 停止服务 | `sudo docker compose -f docker-compose.yml down` |
-| 更新代码 | `cd ~/run && git pull && sudo docker compose -f docker-compose.yml build && sudo docker compose -f docker-compose.yml up -d` |
 | 修改密钥 | 编辑 `~/run/.env`，然后 `sudo docker compose -f docker-compose.yml restart` |
 
 ---
 
-## 更新镜像到 GitHub（维护者操作）
+## 更新代码（已部署的机器）
 
-在开发机上修改代码后，推送镜像供其他机器直接拉取：
+当代码有更新时，在树莓派上执行：
+
+### 只改了代码（最常见）
 
 ```bash
-# 1. 提交代码
-cd ~/run && git add -A && git commit -m "描述" && git push
-
-# 2. 重新构建镜像
-sudo docker compose -f docker-compose.yml build
-
-# 3. 推送镜像
-sudo docker tag lelamp:latest ghcr.io/ccjj77vip-coder/lelamp:latest
-sudo docker push ghcr.io/ccjj77vip-coder/lelamp:latest
+cd ~/run && git pull && sudo docker compose -f docker-compose.yml build && sudo docker compose -f docker-compose.yml up -d
 ```
 
-其他机器更新：
+### 只改了配置（.env、calibration.json）
+
+```bash
+sudo docker compose -f docker-compose.yml restart
+```
+
+### 用离线镜像更新（无需构建，最快）
+
+从维护者处获取最新的 `lelamp-image.tar.gz` 后：
 
 ```bash
 cd ~/run && git pull
-sudo docker pull ghcr.io/ccjj77vip-coder/lelamp:latest
-sudo docker tag ghcr.io/ccjj77vip-coder/lelamp:latest lelamp:latest
+sudo docker load < lelamp-image.tar.gz
 sudo docker compose -f docker-compose.yml up -d
+```
+
+---
+
+## 维护者操作（开发机上）
+
+### 提交代码并推送
+
+```bash
+cd ~/run && git add -A && git commit -m "描述" && git push
+```
+
+### 导出离线镜像（供其他机器使用）
+
+```bash
+sudo docker compose -f docker-compose.yml build
+sudo docker save lelamp:latest | gzip > lelamp-image.tar.gz
+# 将 lelamp-image.tar.gz 上传到网盘/U盘分发
+```
+
+### 推送镜像到 GitHub（需要 classic token 有 write:packages 权限）
+
+```bash
+sudo docker tag lelamp:latest ghcr.io/ccjj77vip-coder/lelamp:latest
+sudo docker push ghcr.io/ccjj77vip-coder/lelamp:latest
 ```
 
 ---
